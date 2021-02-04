@@ -3,7 +3,7 @@ from random import randrange
 
 
 @block
-def Reg_32bit(clk, reset, load, par_in, par_out):
+def Regester(clk, reset, load, par_in, par_out):
     @always_seq(clk.posedge, reset=reset)
     def seq():
         if reset == 0:
@@ -19,7 +19,7 @@ def test_reg32bit():
     reset = ResetSignal(bool(0), active=0, isasync=True)
     par_in = Signal(intbv(0)[32:])
     par_out = Signal(intbv(0)[32:])
-    reg1 = Reg_32bit(clk, reset, load, par_in, par_out)
+    reg1 = Regester(clk, reset, load, par_in, par_out)
 
     @always(delay(10))
     def clk_gen():
