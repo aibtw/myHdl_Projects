@@ -3,7 +3,7 @@ from random import randrange
 
 
 @block
-def Regester(clk, reset, load, par_in, par_out):
+def Register(clk, reset, load, par_in, par_out):
     @always_seq(clk.posedge, reset=reset)
     def seq():
         if reset == 0:
@@ -19,7 +19,7 @@ def test_reg32bit():
     reset = ResetSignal(bool(0), active=0, isasync=True)
     par_in = Signal(intbv(0)[32:])
     par_out = Signal(intbv(0)[32:])
-    reg1 = Regester(clk, reset, load, par_in, par_out)
+    reg1 = Register(clk, reset, load, par_in, par_out)
 
     @always(delay(10))
     def clk_gen():
@@ -51,7 +51,19 @@ def test_reg32bit():
 
     return reg1, clk_gen, res_gen, load_gen, stimulus
 
+def convert():
+    clk, load = [Signal(bool(0)) for i in range(2)]
+    reset = ResetSignal(bool(0), active=0, isasync=True)
+    par_in = Signal(intbv(0)[32:])
+    par_out = Signal(intbv(0)[32:])
+    inst = Register(clk, reset, load, par_in, par_out)
+    inst.convert(name="Register_32bit", hdl='Verilog')
 
+
+
+# convert()
+
+#
 tb = test_reg32bit()
 tb.config_sim(trace=True)
-tb.run_sim(2000)
+# tb.run_sim(2000)
