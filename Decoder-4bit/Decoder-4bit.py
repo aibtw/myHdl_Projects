@@ -1,6 +1,5 @@
 from myhdl import always, block, instance, \
-    always_comb, Signal, intbv, delay, \
-    traceSignals, Simulation, toVerilog
+    always_comb, Signal, intbv, delay
 
 
 @block
