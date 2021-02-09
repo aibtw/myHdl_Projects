@@ -1,15 +1,13 @@
-from myhdl import block, intbv, always_seq \
-    , always, delay, traceSignals, Simulation, \
-    toVerilog, Signal
+from myhdl import block, intbv,\
+     always, delay, Signal
 
 
+@block
 def counter(enable, clk, count):
-    count._nrbits = 12
-
     @always(clk.posedge)
     def logic():
         if enable:
-            if count < 12:
+            if count < 4095:
                 count.next = count + 1
             else:
                 count.next = 0
@@ -19,6 +17,7 @@ def counter(enable, clk, count):
     return logic
 
 
+@block
 def test_counter():
     en, clk = [Signal(bool(0)) for i in range(2)]
     count = Signal(intbv(0)[12:])
@@ -36,17 +35,18 @@ def test_counter():
 
 
 def simulate(timesteps):
-    t = traceSignals(test_counter)
-    sim = Simulation(t)
-    sim.run(timesteps)
+    tb = test_counter()
+    tb.config_sim(trace=True)
+    tb.run_sim(timesteps)
 
 
 def convertToVer():
     en, clk = [Signal(bool(0)) for i in range(2)]
-    count = Signal(intbv(0))
-    toVerilog(counter, en, clk, count)
+    count = Signal(intbv(0)[12:])
+    counter_1 = counter(en, clk, count)
+    counter_1.convert(hdl='Verilog')
 
 
 if __name__ == '__main__':
-    simulate(50000)
+    simulate(20000)
     convertToVer()
