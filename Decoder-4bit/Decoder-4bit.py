@@ -2,9 +2,9 @@ from myhdl import always, block, instance, \
     always_comb, Signal, intbv, delay, \
     traceSignals, Simulation, toVerilog
 
+
 @block
 def decoder_4bit(inpu, out, enable):
-
     @always_comb
     def logic():
         if enable:
@@ -16,6 +16,7 @@ def decoder_4bit(inpu, out, enable):
             out.next = 0
 
     return logic
+
 
 @block
 def test_decoder():
@@ -31,7 +32,15 @@ def test_decoder():
         else:
             inp.next = inp
 
-    return stim, dec
+    @instance
+    def enable_toggle():
+        for i in range(500):
+            en.next = 0
+            yield delay(5)
+            en.next = 1
+            yield delay(5)
+
+    return stim, dec, enable_toggle
 
 
 def simulate(timesteps):
@@ -46,6 +55,7 @@ def convertToVer():
     output = (intbv(0)[16:])
     decoder = decoder_4bit(inpu, output, en)
     decoder.convert(hdl='Verilog')
+
 
 if __name__ == '__main__':
     simulate(1000)
