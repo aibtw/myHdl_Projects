@@ -1,4 +1,5 @@
-from myhdl import *
+from myhdl import block, instance, always, always_seq, Signal, \
+                  ResetSignal, intbv, delay
 from random import randrange
 
 
@@ -16,9 +17,7 @@ def Register(clk, rst, load, par_in, par_out):
 
     @always_seq(clk.posedge, reset=rst)
     def logic():
-        if rst == 0:
-            par_out.next = 0
-        elif load:
+        if load:
             par_out.next = par_in
     return logic
 
