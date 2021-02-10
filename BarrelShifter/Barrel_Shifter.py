@@ -1,27 +1,21 @@
-from myhdl import *
+from myhdl import block, always_comb, Signal, intbv, instance, delay
 from random import randrange
 
 
 # -------------------------Start of Module------------------------- #
 @block
-def Barrel_Shifter(par_in, par_out, shift_amount, shift, load):
-
+def Barrel_Shifter(par_in, par_out, shift_amount):
     """
     A barrel shifter with 3-bits shift amount for 12-bits register.
-    :param par_in: Parallel input to the register (12-bits).
-    :param par_out: Parallel output of the register (12-bits).
-    :param load: Load enable signal. Active High.
-    :param shift: Shift enable signal. Active High.
+    :param par_in: Parallel input (12-bits).
+    :param par_out: Parallel output (12-bits).
     :param shift_amount: Amount of shift to be executed (3-bits maximum).
     """
 
-    @always(load.posedge, shift.posedge)
+    @always_comb
     def logic():
-        """Load the input into the register. or shift the output by specified amount"""
-        if load == 1:
-            par_out.next = par_in
-        else:
-            par_out.next = par_out >> shift_amount
+        """Shift the input by the specified shifting amount"""
+        par_out.next = par_in >> shift_amount
     return logic
 
 # -------------------------End of The Module------------------------- #
@@ -30,29 +24,17 @@ def Barrel_Shifter(par_in, par_out, shift_amount, shift, load):
 # -------------------------Start of Test Bench------------------------- #
 @block
 def tb_barrel_shifter():
-    shift_amount = Signal(modbv(0)[3:])
-    par_in = Signal(modbv(0)[12:])
-    par_out = Signal(modbv(0)[12:])
-    load = Signal(bool(0))
-    shift = Signal(bool(0))
-
-    bs = Barrel_Shifter(par_in, par_out, shift_amount, shift, load)
+    shift_amount = Signal(intbv(0)[3:])
+    par_in = Signal(intbv(0)[12:])
+    par_out = Signal(intbv(0)[12:])
+    bs = Barrel_Shifter(par_in, par_out, shift_amount)
 
     @instance
     def stimulus():
-        while True:
+        for i in range(20):
             par_in.next = randrange(4096)  # random 12-bits number
-            yield delay(5)
-            load.next = 1
-            yield delay(5)
-            load.next = 0
-            while int(par_out) != 0:
-                yield delay(5)
-                shift.next = 1
-                shift_amount.next = randrange(8)
-                yield delay(5)
-                shift.next = 0
-
+            shift_amount.next = randrange(8)
+            yield delay(10)
     return bs, stimulus
 
 # -------------------------End of Test Bench------------------------- #
@@ -60,12 +42,10 @@ def tb_barrel_shifter():
 
 # -------------------------Start of Verilog Converter------------------------- #
 def convert_to_verilog():
-    shift_amount = Signal(modbv(0)[3:])
-    par_in = Signal(modbv(0)[12:])
-    par_out = Signal(modbv(0)[12:])
-    load = Signal(bool(0))
-    shift = Signal(bool(0))
-    bs = Barrel_Shifter(par_in, par_out, shift_amount, shift, load)
+    shift_amount = Signal(intbv(0)[3:])
+    par_in = Signal(intbv(0)[12:])
+    par_out = Signal(intbv(0)[12:])
+    bs = Barrel_Shifter(par_in, par_out, shift_amount)
     bs.convert(name='Barrel_Shifter', hdl='Verilog')
 
 # -------------------------End of Verilog Converter------------------------- #

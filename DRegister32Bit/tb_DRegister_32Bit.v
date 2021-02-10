@@ -18,7 +18,7 @@ initial begin
     );
 end
 
-Register_32bit dut(
+DRegister_32Bit dut(
     clk,
     rst,
     load,
