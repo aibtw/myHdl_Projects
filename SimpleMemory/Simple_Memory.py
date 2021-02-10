@@ -1,4 +1,5 @@
-from myhdl import *
+from myhdl import block, always, always_seq, always_comb, \
+    instance, Signal, ResetSignal, intbv, delay
 from random import randrange
 
 
@@ -15,21 +16,19 @@ def Memory(clk, rst, en, addr, din, dout):
     :param dout: Data output
     """
 
-    regs = [Signal(intbv(0)[8:]) for i in range(32)]
+    mem = [Signal(intbv(0)[8:]) for i in range(32)]
 
     @always_seq(clk.posedge, reset=rst)
     def write():
         if en:
-            regs[addr].next = din
+            mem[addr].next = din
 
     @always_comb
     def read():
-        if rst == 0:
-            dout.next = 0
-        else:
-            dout.next = regs[addr]
+        dout.next = mem[addr]
 
     return write, read
+
 
 # -------------------------End of The Module------------------------- #
 
@@ -37,11 +36,11 @@ def Memory(clk, rst, en, addr, din, dout):
 # -------------------------Start of Test Bench------------------------- #
 @block
 def test_memory():
-    clk, enable = [Signal(bool(0)) for i in range(2)]
-    reset = ResetSignal(bool(0), active=0, isasync=True)
-    address = Signal(intbv(0)[5:])
-    data_in, data_out = [Signal(intbv(0)[8:]) for i in range(2)]  # each reg is 8 bits
-    memory = Memory(clk, reset, enable, address, data_in, data_out)
+    clk, en = [Signal(bool(0)) for i in range(2)]
+    rst = ResetSignal(bool(0), active=0, isasync=True)
+    addr = Signal(intbv(0)[5:])
+    din, dout = [Signal(intbv(0)[8:]) for j in range(2)]  # each reg is 8 bits
+    memory = Memory(clk, rst, en, addr, din, dout)
 
     @always(delay(10))
     def clk_gen():
@@ -50,41 +49,43 @@ def test_memory():
     @instance
     def res_gen():
         yield delay(5)
-        reset.next = 1
+        rst.next = 1
         while True:
-            yield delay(randrange(400,800))
-            reset.next = 0
+            yield delay(randrange(400, 800))
+            rst.next = 0
             yield delay(randrange(100, 350))
-            reset.next = 1
+            rst.next = 1
 
     @instance
     def enable_gen():
         yield delay(5)
-        enable.next = 1
+        en.next = 1
         while True:
             yield delay(randrange(30, 65))
-            enable.next = 0
+            en.next = 0
             yield delay(randrange(20, 35))
-            enable.next = 1
+            en.next = 1
 
     @always(clk.negedge)
     def stimulus():
-        data_in.next = randrange(2**8)
-        address.next = randrange(2**5)
+        din.next = randrange(2 ** 8)
+        addr.next = randrange(2 ** 5)
 
     return memory, clk_gen, res_gen, enable_gen, stimulus
+
 
 # -------------------------End of Test Bench------------------------- #
 
 
 # -------------------------Start of Verilog Converter------------------------- #
 def convert_to_verilog():
-    clk, enable = [Signal(bool(0)) for i in range(2)]
-    reset = ResetSignal(bool(0), active=0, isasync=True)
-    address = Signal(intbv(0)[5:])
-    data_in, data_out = [Signal(intbv(0)[8:]) for j in range(2)]  # each reg is 8 bits
-    memory = Memory(clk, reset, enable, address, data_in, data_out)
-    memory.convert(name="Simple_Memory", hdl='Verilog')
+    clk, en = [Signal(bool(0)) for i in range(2)]
+    rst = ResetSignal(bool(0), active=0, isasync=True)
+    addr = Signal(intbv(0)[5:])
+    din, dout = [Signal(intbv(0)[8:]) for j in range(2)]  # each reg is 8 bits
+    memory = Memory(clk, rst, en, addr, din, dout)
+    memory.convert(name='Simple_Memory', hdl='Verilog')
+
 
 # -------------------------End of Verilog Converter------------------------- #
 
