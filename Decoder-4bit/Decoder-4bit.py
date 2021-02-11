@@ -45,13 +45,13 @@ def test_decoder():
 def simulate(timesteps):
     tb = test_decoder()
     tb.config_sim(trace=True)
-    tb.run_sim(1000)
+    tb.run_sim(200)
 
 
 def convertToVer():
     en = Signal(bool(0))
-    inpu = [Signal(intbv(0)) for i in range(4)]
-    output = [Signal(intbv(0)) for i in range(16)]
+    inpu = Signal(intbv(0)[4:])
+    output = Signal(intbv(0)[16:])
     decoder = decoder_4bit(inpu, output, en)
     decoder.convert(hdl='Verilog')
 
