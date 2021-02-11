@@ -50,8 +50,8 @@ def simulate(timesteps):
 
 def convertToVer():
     en = Signal(bool(0))
-    inpu = intbv(0)[4:]
-    output = (intbv(0)[16:])
+    inpu = [Signal(intbv(0)) for i in range(4)]
+    output = [Signal(intbv(0)) for i in range(16)]
     decoder = decoder_4bit(inpu, output, en)
     decoder.convert(hdl='Verilog')
 
