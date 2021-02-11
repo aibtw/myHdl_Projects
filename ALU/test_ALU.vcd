@@ -1,0 +1,77 @@
+$date
+    Thu Feb 11 23:27:03 2021
+$end
+$version
+    MyHDL 0.11
+$end
+$timescale
+    1ns
+$end
+
+$scope module test_ALU $end
+$var reg 8 ! z $end
+$var reg 8 " a $end
+$var reg 8 # b $end
+$var reg 3 $ sel $end
+$scope module ALU0_0 $end
+$var reg 8 " a $end
+$var reg 8 # b $end
+$var reg 3 $ sel $end
+$var reg 8 ! z $end
+$upscope $end
+$upscope $end
+
+$enddefinitions $end
+$dumpvars
+b00000000 !
+b00000000 "
+b00000000 #
+b000 $
+$end
+#10
+b001 $
+b00000100 "
+b00001101 #
+b00010001 !
+#20
+b010 $
+b00001010 "
+b00000100 #
+b00000110 !
+#30
+b011 $
+b00001111 "
+b00000100 !
+#40
+b100 $
+b01011001 "
+b00101001 #
+b01111001 !
+#50
+b101 $
+b00000101 "
+b00001001 #
+b00001100 !
+#60
+b001 $
+b00010001 "
+b00000111 #
+b00011000 !
+#70
+b010 $
+b00001000 "
+b00000101 #
+b00000011 !
+#80
+b011 $
+b00001100 #
+b00001000 !
+#90
+b100 $
+b01001100 "
+b01100101 #
+b01101101 !
+#100
+b101 $
+b00010000 "
+b01111101 #
