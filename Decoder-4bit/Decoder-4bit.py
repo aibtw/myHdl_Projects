@@ -7,10 +7,7 @@ def decoder_4bit(inpu, out, enable):
     @always_comb
     def logic():
         if enable:
-            if inpu == 0:
-                out.next = 0
-            else:
-                out.next = 2 ** inpu
+            out.next = 2 ** inpu
         else:
             out.next = 0
 
@@ -29,34 +26,30 @@ def test_decoder():
         if inp < 15:
             inp.next = inp + 1
         else:
-            inp.next = inp
+            inp.next = 0
 
-    @instance
+    @always(delay(5))
     def enable_toggle():
-        for i in range(500):
-            en.next = 0
-            yield delay(5)
-            en.next = 1
-            yield delay(5)
+        en.next = not en
 
     return stim, dec, enable_toggle
 
 
-def simulate(timesteps):
+def simulate():
     tb = test_decoder()
     tb.config_sim(trace=True)
-    tb.run_sim(200)
+    tb.run_sim(1500)
 
 
 def convertToVer():
     en = Signal(bool(0))
-    inpu = Signal(intbv(0)[4:])
-    output = Signal(intbv(0)[16:])
+    inpu = intbv(0)[4:]
+    output = (intbv(0)[16:])
     decoder = decoder_4bit(inpu, output, en)
     decoder.convert(hdl='Verilog')
 
 
 if __name__ == '__main__':
-    simulate(1000)
+    simulate()
     convertToVer()
     pass
