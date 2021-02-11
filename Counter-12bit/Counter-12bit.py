@@ -1,52 +1,58 @@
 from myhdl import block, intbv, \
-    always, delay, Signal, instance
+    always_seq, always, delay, Signal, instance, ResetSignal, modbv
+from random import randrange
 
 
-# A better way is to use the same terminal/bus for output and input
 @block
-def counter(enable, clk, count, write_enable, write_in):
-    @always(clk.posedge)
+def counter(clk, rst, c_en, w_en, count, write_in):
+    @always_seq(clk.posedge, reset=rst)
     def logic():
-        if enable:
-            if count < 4095:
-                count.next = count + 1
-            else:
-                count.next = 0
+        if w_en:
+            count.next = write_in
+        elif c_en:
+            count.next = count + 1
         else:
             count.next = count
-        if write_enable:
-            count.next = write_in
     return logic
 
 
 @block
 def test_counter():
-    en, clk, we = [Signal(bool(0)) for i in range(3)]
-    count, w_in = [Signal(intbv(0)[12:]) for i in range(2)]
-    inst = counter(en, clk, count, we, w_in)
+    c_en, clk, w_en = [Signal(bool(0)) for i in range(3)]
+    rst = ResetSignal(bool(0), active=0, isasync=True)
+    count = Signal(modbv(0)[12:])
+    write_in = Signal(intbv(0)[12:])
+    inst = counter(clk, rst, c_en, w_en, count, write_in)
 
-    @always(delay(1))
+    @always(delay(5))
     def clk_gen():
         clk.next = not clk
 
-    @always(delay(3))
-    def alternate_en():
-        en.next = not en
+    @instance
+    def res_gen():
+        yield delay(5)
+        rst.next = 1
+        while True:
+            yield delay(50)
+            rst.next = 0
+            yield delay(10)
+            rst.next = 1
 
     @instance
-    def write_test():
-        yield delay(5000)
-        we.next = True
-        w_in.next = intbv(500)
-        yield delay(2)
-        we.next = False
-        yield delay(5)
-        we.next = True
-        w_in.next = intbv(5)
-        yield delay(2)
-        we.next = False
+    def stimulus():
+        w_en.next = 1
+        c_en.next = 1
+        write_in.next = randrange(4094, 4096)
+        while True:
+            yield delay(10)
+            w_en.next = 0
+            c_en.next = 1
+            yield delay(50)
+            w_en.next = 1
+            c_en.next = 0
+            write_in.next = randrange(4096)
 
-    return inst, clk_gen, alternate_en, write_test
+    return inst, res_gen, clk_gen, stimulus
 
 
 def simulate(timesteps):
@@ -55,14 +61,16 @@ def simulate(timesteps):
     tb.run_sim(timesteps)
 
 
-def convertToVer():
+def convert_to_verilog():
     en, clk, we = [Signal(bool(0)) for i in range(3)]
+    rst = ResetSignal(bool(0), active=0, isasync=True)
+
     count = Signal(intbv(0)[12:])
     w_in = Signal(intbv(0)[12:])
-    counter_1 = counter(en, clk, count, we, w_in)
+    counter_1 = counter(clk, rst, en, we, count, w_in)
     counter_1.convert(hdl='Verilog')
 
 
 if __name__ == '__main__':
-    simulate(20000)
-    convertToVer()
+    simulate(500)
+    convert_to_verilog()

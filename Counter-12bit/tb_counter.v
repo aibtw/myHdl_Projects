@@ -1,16 +1,18 @@
 module tb_counter;
 
-reg enable;
 reg clk;
+reg rst;
+reg c_en;
+reg w_en;
 wire [11:0] count;
-reg write_enable;
 reg [11:0] write_in;
 
 initial begin
     $from_myhdl(
-        enable,
         clk,
-        write_enable,
+        rst,
+        c_en,
+        w_en,
         write_in
     );
     $to_myhdl(
@@ -19,10 +21,11 @@ initial begin
 end
 
 counter dut(
-    enable,
     clk,
+    rst,
+    c_en,
+    w_en,
     count,
-    write_enable,
     write_in
 );
 
