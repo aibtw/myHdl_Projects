@@ -3,7 +3,7 @@ module tb_MUX_Two_One;
 wire [7:0] z;
 reg [7:0] a;
 reg [7:0] b;
-reg [2:0] sel;
+reg [1:0] sel;
 
 initial begin
     $from_myhdl(

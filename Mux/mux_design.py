@@ -11,7 +11,7 @@ def mux_two_to_one(z,a,b,sel): # z is output a and b are inputs and sel is the s
     def combLogic():
         if sel == 1:
             z.next = a
-        elif sel == 0:
+        else :
             z.next=b
     return combLogic
 
@@ -38,11 +38,12 @@ def convert_to_verilog():
     a = Signal(intbv(0)[8:])
     b = Signal(intbv(0)[8:])
     c = Signal(intbv(0)[8:])
-    sel = Signal(intbv(0)[3:])
-    m21 =mux_two_to_one(z,a,b,sel)
+    sel1 = Signal(intbv(0)[2:])
+    m21 =mux_two_to_one(z,a,b,sel1)
     m21.convert(name='MUX_Two_One',hdl='Verilog')
 
-    m31 =mux_three_to_one(z,a,b,c,sel)
+    sel2 = Signal(intbv(0)[3:])
+    m31 =mux_three_to_one(z,a,b,c,sel2)
     m31.convert(name='Mux_Three_One',hdl='Verilog')
 
 # -------------------------End of Verilog Converter------------------------- #
