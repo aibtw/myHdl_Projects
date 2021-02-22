@@ -1,7 +1,6 @@
 module tb_Simple_Memory;
 
 reg clk;
-reg rst;
 reg en;
 reg [4:0] addr;
 reg [7:0] din;
@@ -10,7 +9,6 @@ wire [7:0] dout;
 initial begin
     $from_myhdl(
         clk,
-        rst,
         en,
         addr,
         din
@@ -22,7 +20,6 @@ end
 
 Simple_Memory dut(
     clk,
-    rst,
     en,
     addr,
     din,
